@@ -1,0 +1,72 @@
+index.html
+
+<!DOCTYPE html>
+<html ng-app="notesApp">
+<head>
+    <title>Notes Management App</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        input[type="text"] { width: 300px; padding: 5px; }
+        button { padding: 5px 10px; margin-left: 5px; }
+        ul { list-style-type: none; padding: 0; }
+        li { margin: 5px 0; }
+    </style>
+</head>
+<body ng-controller="NotesController">
+
+    <h2>Notes Management Application</h2>
+
+    <!-- Input to add note -->
+    <input type="text" ng-model="newNote" placeholder="Enter note here"/>
+    <button ng-click="addNote()">Add Note</button>
+
+    <!-- Display notes -->
+    <ul>
+        <li ng-repeat="note in notes">
+            {{note}}
+            <button ng-click="deleteNote($index)">Delete</button>
+        </li>
+    </ul>
+
+    <script>
+        // Step 2: Create AngularJS app
+        var app = angular.module('notesApp', []);
+
+        // Step 3: Create NotesService
+        app.factory('NotesService', function() {
+            var notes = []; // Store notes
+
+            return {
+                getAllNotes: function() {
+                    return notes;
+                },
+                addNote: function(note) {
+                    if(note) notes.push(note);
+                },
+                deleteNote: function(index) {
+                    notes.splice(index, 1);
+                }
+            };
+        });
+
+        // Step 4: Create Controller to use service
+        app.controller('NotesController', ['$scope', 'NotesService', function($scope, NotesService) {
+            // Initialize notes
+            $scope.notes = NotesService.getAllNotes();
+
+            // Add a new note
+            $scope.addNote = function() {
+                NotesService.addNote($scope.newNote);
+                $scope.newNote = ''; // Clear input
+            };
+
+            // Delete a note
+            $scope.deleteNote = function(index) {
+                NotesService.deleteNote(index);
+            };
+        }]);
+    </script>
+
+</body>
+</html>
