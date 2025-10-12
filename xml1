@@ -1,0 +1,78 @@
+How to run:
+  pip install lxml
+  python book.py
+
+books.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="books.xsl"?>
+
+<catalog>
+  <book>
+    <title>The Great Gatsby</title>
+    <author>F. Scott Fitzgerald</author>
+    <year>1925</year>
+    <genre>Classic</genre>
+  </book>
+  <book>
+    <title>1984</title>
+    <author>Siva</author>
+    <year>1949</year>
+    <genre>Dystopian</genre>
+  </book>
+  <book>
+    <title>To Kill a Mockingbird</title>
+    <author>Harper Lee</author>
+    <year>1960</year>
+    <genre>Fiction</genre>
+  </book>
+</catalog>
+
+books.xsl
+
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+  <xsl:template match="/catalog">
+    <html>
+      <head>
+        <title>Book Catalog</title>
+      </head>
+      <body>
+        <h2>Book Catalog</h2>
+        <table border="1">
+          <tr bgcolor="#ccc">
+            <th>Title</th>
+            <th>Author</th>
+            <th>Year</th>
+            <th>Genre</th>
+          </tr>
+          <xsl:for-each select="book">
+            <tr>
+              <td><xsl:value-of select="title"/></td>
+              <td><xsl:value-of select="author"/></td>
+              <td><xsl:value-of select="year"/></td>
+              <td><xsl:value-of select="genre"/></td>
+            </tr>
+          </xsl:for-each>
+        </table>
+      </body>
+    </html>
+  </xsl:template>
+
+</xsl:stylesheet>
+
+book.py
+
+from lxml import etree
+
+xml = etree.parse("books.xml")
+xsl = etree.parse("books.xsl")
+
+transform = etree.XSLT(xsl)
+
+result = transform(xml)
+
+with open("output.html", "w") as f:
+    f.write(str(result))
