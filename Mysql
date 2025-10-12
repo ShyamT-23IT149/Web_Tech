@@ -1,0 +1,81 @@
+npm init -y
+npm install mysql2 express body-parser
+node server.js
+
+CREATE DATABASE userdb;
+USE userdb;
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100),
+  email VARCHAR(100),
+  address VARCHAR(255),
+  password VARCHAR(100)
+);
+
+POST:
+  {
+  "name": "John Doe",
+  "email": "john@example.com",
+  "address": "123 Main St",
+  "password": "mypassword"
+  }
+MYSQL:
+  INSERT INTO users (name, email, address, password) VALUES ('John Doe', 'john@example.com', '123 Main St', 'mypassword');
+  select * from users;
+  DELETE FROM users WHERE id = 1;
+
+server.js
+const express = require('express');
+const bodyParser = require('body-parser');
+const mysql = require('mysql2'); // Using mysql2 for better compatibility
+
+const app = express();
+const port = 3000;
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',           // your MySQL username
+  password: '', // your MySQL password
+  database: 'userdb'
+});
+
+db.connect(err => {
+  if (err) {
+    console.error('Database connection failed:', err);
+    return;
+  }
+  console.log('Connected to MySQL database.');
+});
+
+app.post('/adduser', (req, res) => {
+  const { name, email, address, password } = req.body;
+
+  const sql = 'INSERT INTO users (name, email, address, password) VALUES (?, ?, ?, ?)';
+  db.query(sql, [name, email, address, password], (err, result) => {
+    if (err) {
+      console.error('Error inserting data:', err);
+      res.status(500).send('Error adding user');
+    } else {
+      res.send('User added successfully!');
+    }
+  });
+});
+
+app.get('/users', (req, res) => {
+  const sql = 'SELECT id, name, email, address FROM users'; // omit password for security
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error fetching users:', err);
+      res.status(500).send('Error fetching users');
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+app.listen(port, () => {
+  console.log(`🚀 Server running at http://localhost:${port}`);
+});
