@@ -1,0 +1,66 @@
+library.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<library xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="library.xsd">
+
+    <book>
+        <bookID>B001</bookID>
+        <title>The Great Gatsby</title>
+        <author>F. Scott Fitzgerald</author>
+        <genre>Classic</genre>
+        <publicationYear>1925</publicationYear>
+        <availabilityStatus>Available</availabilityStatus>
+    </book>
+
+    <book>
+        <bookID>B002</bookID>
+        <title>1984</title>
+        <author>George Orwell</author>
+        <genre>Dystopian</genre>
+        <publicationYear>1949</publicationYear>
+        <availabilityStatus>Checked Out</availabilityStatus>
+    </book>
+
+</library>
+
+library.xsd
+
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified">
+
+    <!-- Root element -->
+    <xs:element name="library">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="book" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="bookID" type="xs:string"/>
+                            <xs:element name="title">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:minLength value="1"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element name="author" type="xs:string"/>
+                            <xs:element name="genre" type="xs:string"/>
+                            <xs:element name="publicationYear" type="xs:gYear"/>
+                            <xs:element name="availabilityStatus">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:enumeration value="Available"/>
+                                        <xs:enumeration value="Checked Out"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>
