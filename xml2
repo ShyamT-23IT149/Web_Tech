@@ -1,0 +1,60 @@
+employee.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<employees xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:noNamespaceSchemaLocation="employee.xsd">
+    <employee>
+        <employeeID>E001</employeeID>
+        <name>John Doe</name>
+        <designation>Software Engineer</designation>
+        <salary>50000</salary>
+        <employmentStatus>Active</employmentStatus>
+    </employee>
+
+    <employee>
+        <employeeID>E002</employeeID>
+        <name>Jane Smith</name>
+        <designation>Project Manager</designation>
+        <salary>75000</salary>
+        <employmentStatus>Inactive</employmentStatus>
+    </employee>
+</employees>
+
+employee.xsd
+
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified">
+
+    <!-- Root element -->
+    <xs:element name="employees">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="employee" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="employeeID" type="xs:string"/>
+                            <xs:element name="name" type="xs:string"/>
+                            <xs:element name="designation" type="xs:string"/>
+                            <xs:element name="salary">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:decimal">
+                                        <xs:minInclusive value="0.01"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element name="employmentStatus">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:enumeration value="Active"/>
+                                        <xs:enumeration value="Inactive"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
