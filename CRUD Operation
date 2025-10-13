@@ -1,0 +1,279 @@
+npm init -y
+npm install mysql2
+
+app.js
+
+const http = require('http');
+const mysql = require('mysql2');
+const fs = require('fs');
+
+const PORT = 3000;
+
+// MySQL Connection Configuration
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'test_db'
+});
+
+// Connect to MySQL and initialize table
+db.connect((err) => {
+  if (err) {
+    console.error('MySQL connection failed:', err);
+    return;
+  }
+  console.log('Connected to MySQL!');
+
+  // Create table if it doesn't exist
+  const createTable = `
+    CREATE TABLE IF NOT EXISTS users (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(100) NOT NULL,
+      email VARCHAR(100) NOT NULL
+    )
+  `;
+  db.query(createTable, (err) => {
+    if (err) console.error('Error creating table:', err);
+    else console.log('Table ready!');
+  });
+});
+
+// Helper function to handle POST body parsing
+function getPostData(req, callback) {
+  let body = '';
+  req.on('data', chunk => body += chunk);
+  req.on('end', () => {
+    try {
+      callback(null, JSON.parse(body));
+    } catch (e) {
+      callback(e);
+    }
+  });
+}
+
+// Create HTTP Server
+const server = http.createServer((req, res) => {
+
+  // Serve the HTML file
+  if (req.method === 'GET' && req.url === '/') {
+    fs.readFile('index2.html', (err, data) => {
+      if (err) {
+        // Handle error if index.html is missing
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Error loading index.html file.');
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(data);
+    });
+  }
+
+  // CREATE endpoint
+  else if (req.method === 'POST' && req.url === '/create') {
+    getPostData(req, (err, data) => {
+      if (err) return res.writeHead(400).end('Invalid JSON');
+      db.query('INSERT INTO users (name, email) VALUES (?, ?)', [data.name, data.email], (dbErr) => {
+        if (dbErr) { console.error('DB Error:', dbErr); res.writeHead(500).end('DB Error'); return; }
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, message: 'User created' }));
+      });
+    });
+  }
+
+  // READ endpoint
+  else if (req.method === 'GET' && req.url === '/read') {
+    db.query('SELECT * FROM users', (err, rows) => {
+      if (err) { console.error('DB Error:', err); res.writeHead(500).end('DB Error'); return; }
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(rows || []));
+    });
+  }
+
+  // UPDATE endpoint
+  else if (req.method === 'POST' && req.url === '/update') {
+    getPostData(req, (err, data) => {
+      if (err) return res.writeHead(400).end('Invalid JSON');
+      db.query('UPDATE users SET name=?, email=? WHERE id=?', [data.name, data.email, data.id], (dbErr) => {
+        if (dbErr) { console.error('DB Error:', dbErr); res.writeHead(500).end('DB Error'); return; }
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, message: 'User updated' }));
+      });
+    });
+  }
+
+  // DELETE endpoint
+  else if (req.method === 'POST' && req.url === '/delete') {
+    getPostData(req, (err, data) => {
+      if (err) return res.writeHead(400).end('Invalid JSON');
+      db.query('DELETE FROM users WHERE id=?', [data.id], (dbErr) => {
+        if (dbErr) { console.error('DB Error:', dbErr); res.writeHead(500).end('DB Error'); return; }
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, message: 'User deleted' }));
+      });
+    });
+  }
+
+  // 404 handler
+  else {
+    res.writeHead(404);
+    res.end('Not Found');
+  }
+});
+
+server.listen(PORT, () => {
+  console.log('🚀 Server running at http://localhost:' + PORT);
+});
+
+index2.html
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple CRUD</title>
+</head>
+<body>
+  <h2>Simple User CRUD</h2>
+
+  <div id="messageBox" role="alert" style="display: none;"></div>
+
+  <form id="userForm">
+    <input type="hidden" id="userId">
+    <input type="text" id="name" placeholder="Name" required>
+    <input type="email" id="email" placeholder="Email" required>
+    <button type="submit">Save</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Name</th><th>Email</th><th>Actions</th></tr>
+    </thead>
+    <tbody id="userTable"><tr><td colspan="4">Loading...</td></tr></tbody>
+  </table>
+
+  <script>
+    const form = document.getElementById('userForm');
+    const nameInput = document.getElementById('name');
+    const emailInput = document.getElementById('email');
+    const idInput = document.getElementById('userId');
+    const table = document.getElementById('userTable');
+    const messageBox = document.getElementById('messageBox');
+
+    // Expose functions to the global scope for onclick handlers
+    window.editUser = editUser;
+    window.deleteUser = deleteUser;
+
+    loadUsers();
+
+    function showMessage(text, type = 'info') {
+      messageBox.textContent = text;
+      messageBox.style.display = 'block';
+
+      // Basic color change based on type (for a cleaner look)
+      if (type === 'error') {
+        messageBox.style.background = '#f8d7da';
+        messageBox.style.color = '#721c24';
+        messageBox.style.borderColor = '#f5c6cb';
+      } else {
+        messageBox.style.background = '#d1ecf1';
+        messageBox.style.color = '#0c5460';
+        messageBox.style.borderColor = '#bee5eb';
+      }
+
+      setTimeout(() => {
+        messageBox.style.display = 'none';
+      }, 3000);
+    }
+
+    // Load all users
+    function loadUsers() {
+      fetch('/read')
+        .then(res => res.json())
+        .then(data => {
+          if (data.length === 0) {
+            table.innerHTML = '<tr><td colspan="4">No users found</td></tr>';
+            return;
+          }
+          // --- FIX IS HERE ---
+          table.innerHTML = data.map(u => `
+            <tr>
+              <td>${u.id}</td>
+              <td>${u.name}</td>
+              <td>${u.email}</td>
+              <td>
+                <button class="btn btn-update" onclick="editUser(${u.id}, '${u.name}', '${u.email}')">Edit</button>
+                <button class="btn btn-delete" onclick="handleDeleteConfirmation(${u.id})">Delete</button>
+              </td>
+            </tr>
+          `).join('');
+          // ------------------
+        })
+        .catch(err => {
+          console.error('Failed to load users:', err);
+          table.innerHTML = '<tr><td colspan="4">Error loading users. Check server connection.</td></tr>';
+        });
+    }
+
+    // Save or Update user
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const user = { name: nameInput.value, email: emailInput.value };
+      let url = '/create';
+      const isUpdate = !!idInput.value;
+
+      if (isUpdate) {
+        user.id = idInput.value;
+        url = '/update';
+      }
+
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(user)
+      }).then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            form.reset();
+            idInput.value = '';
+            loadUsers();
+            showMessage(`User \${isUpdate ? 'updated' : 'created'} successfully!`);
+          }
+        })
+        .catch(err => showMessage('Failed to save user.', 'error'));
+    });
+
+    // Edit user (load data into form)
+    function editUser(id, name, email) {
+      idInput.value = id;
+      nameInput.value = name;
+      emailInput.value = email;
+      document.querySelector('button[type="submit"]').textContent = 'Update';
+    }
+
+    // Custom confirmation logic for delete (replaces the prohibited 'confirm()')
+    function handleDeleteConfirmation(id) {
+        // In a real application, this would trigger a modal dialog.
+        // For this simple example, we will directly delete but log a warning.
+        console.warn('NOTE: Using direct delete action. For production, implement a custom modal UI for confirmation instead of alert/confirm.');
+        deleteUser(id);
+    }
+
+    // Delete user API call
+    function deleteUser(id) {
+      fetch('/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      }).then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                loadUsers();
+                showMessage('User deleted successfully!');
+            }
+        })
+        .catch(err => showMessage('Failed to delete user.', 'error'));
+    }
+  </script>
+</body>
+</html>
