@@ -1,0 +1,133 @@
+form.html
+
+<!DOCTYPE html>
+<html lang="en" ng-app="formApp">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Registration Form</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f2f2f2;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            max-width: 500px;
+            margin: auto;
+            border-radius: 8px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            box-sizing: border-box;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin-top: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .error {
+            color: red;
+            font-size: 13px;
+        }
+
+        .success {
+            color: green;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body ng-controller="FormController">
+
+<div class="container">
+    <h2>Register</h2>
+    <form name="userForm" novalidate>
+
+        <label>Name *</label>
+        <input type="text" ng-model="user.name" name="name" required>
+        <div class="error" ng-show="userForm.name.$touched && userForm.name.$invalid">Name is required.</div>
+
+        <label>Email *</label>
+        <input type="email" ng-model="user.email" name="email" required>
+        <div class="error" ng-show="userForm.email.$touched && userForm.email.$invalid">Valid email required.</div>
+
+        <label>Password *</label>
+        <input type="password" ng-model="user.password" name="password" required>
+        <div class="error" ng-show="userForm.password.$touched && userForm.password.$invalid">Password is required.</div>
+
+        <label>Confirm Password *</label>
+        <input type="password" ng-model="user.confirmPassword" name="confirmPassword" required>
+        <div class="error" ng-show="userForm.confirmPassword.$touched && user.confirmPassword !== user.password">
+            Passwords must match.
+        </div>
+
+        <label>Country</label>
+        <select ng-model="user.country">
+            <option value="">-- Select Country --</option>
+            <option value="US">United States</option>
+            <option value="IN">India</option>
+            <option value="UK">United Kingdom</option>
+        </select>
+
+        <label>
+            <input type="checkbox" ng-model="user.agree" required>
+            I agree to terms *
+        </label>
+        <div class="error" ng-show="userForm.$submitted && !user.agree">You must agree before submitting.</div>
+
+        <button type="submit" ng-click="submitForm()">Submit</button>
+        <button type="button" ng-click="resetForm()">Reset</button>
+    </form>
+
+    <div class="success" ng-if="submitted">
+        <p><strong>Success!</strong> Form submitted.</p>
+        <p>Name: {{user.name}}</p>
+        <p>Email: {{user.email}}</p>
+        <p>Country: {{user.country || 'Not selected'}}</p>
+    </div>
+</div>
+
+<script>
+    var app = angular.module('formApp', []);
+    app.controller('FormController', function($scope) {
+        $scope.user = {};
+        $scope.submitted = false;
+
+        $scope.submitForm = function() {
+            if ($scope.userForm.$valid && $scope.user.password === $scope.user.confirmPassword && $scope.user.agree) {
+                $scope.submitted = true;
+            } else {
+                $scope.submitted = false;
+            }
+        };
+
+        $scope.resetForm = function() {
+            $scope.user = {};
+            $scope.submitted = false;
+            $scope.userForm.$setPristine();
+            $scope.userForm.$setUntouched();
+        };
+    });
+</script>
+
+</body>
+</html>
