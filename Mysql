@@ -2,6 +2,7 @@ npm init -y
 npm install mysql2 express body-parser
 node server.js
 
+Mysql:
 CREATE DATABASE userdb;
 USE userdb;
 CREATE TABLE users (
