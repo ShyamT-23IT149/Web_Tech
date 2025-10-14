@@ -70,3 +70,129 @@ index.html
 
 </body>
 </html>
+
+index2.html(CSS)
+
+<!DOCTYPE html>
+<html ng-app="notesApp">
+<head>
+    <title>Notes Management App</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+     <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            background-color: #f2f2f2;
+            color: #333;
+        }
+
+        h2 {
+            color: #444;
+        }
+
+        input[type="text"] {
+            width: 300px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 8px 12px;
+            margin-left: 5px;
+            border: none;
+            border-radius: 4px;
+            background-color: #4285f4;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #357ae8;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        li {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        li button {
+            background-color: #e74c3c;
+        }
+
+        li button:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body ng-controller="NotesController">
+
+    <h2>Notes Management Application</h2>
+
+    <!-- Input to add note -->
+    <input type="text" ng-model="newNote" placeholder="Enter note here"/>
+    <button ng-click="addNote()">Add Note</button>
+
+    <!-- Display notes -->
+    <ul>
+        <li ng-repeat="note in notes">
+            {{note}}
+            <button ng-click="deleteNote($index)">Delete</button>
+        </li>
+    </ul>
+
+    <script>
+        // Step 2: Create AngularJS app
+        var app = angular.module('notesApp', []);
+
+        // Step 3: Create NotesService
+        app.factory('NotesService', function() {
+            var notes = []; // Store notes
+
+            return {
+                getAllNotes: function() {
+                    return notes;
+                },
+                addNote: function(note) {
+                    if(note) notes.push(note);
+                },
+                deleteNote: function(index) {
+                    notes.splice(index, 1);
+                }
+            };
+        });
+
+        // Step 4: Create Controller to use service
+        app.controller('NotesController', ['$scope', 'NotesService', function($scope, NotesService) {
+            // Initialize notes
+            $scope.notes = NotesService.getAllNotes();
+
+            // Add a new note
+            $scope.addNote = function() {
+                NotesService.addNote($scope.newNote);
+                $scope.newNote = ''; // Clear input
+            };
+
+            // Delete a note
+            $scope.deleteNote = function(index) {
+                NotesService.deleteNote(index);
+            };
+        }]);
+    </script>
+
+</body>
+</html>
