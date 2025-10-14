@@ -1,0 +1,87 @@
+npm init -y
+npm install express mongoose
+node server.js
+
+index.html
+
+<!DOCTYPE html>
+<html ng-app="todoApp">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple To-Do (AngularJS + Node + MongoDB)</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+</head>
+<body ng-controller="TodoCtrl">
+  <h2>To-Do List</h2>
+
+  <input type="text" ng-model="newTodo" placeholder="Enter task">
+  <button ng-click="addTodo()">Add</button>
+
+  <ul>
+    <li ng-repeat="t in todos">
+      <input type="checkbox" ng-model="t.completed" ng-change="updateTodo(t)">
+      <span ng-class="{done: t.completed}">{{t.title}}</span>
+      <button ng-click="deleteTodo(t)">X</button>
+    </li>
+  </ul>
+
+  <script>
+    angular.module('todoApp', [])
+      .controller('TodoCtrl', function($scope, $http) {
+        const API = '/api/todos';
+
+        $scope.load = () => $http.get(API).then(r => $scope.todos = r.data);
+        $scope.addTodo = () => {
+          if (!$scope.newTodo) return;
+          $http.post(API, { title: $scope.newTodo }).then(() => {
+            $scope.newTodo = ''; $scope.load();
+          });
+        };
+        $scope.updateTodo = (t) => $http.put(API + '/' + t._id, t);
+        $scope.deleteTodo = (t) => $http.delete(API + '/' + t._id).then($scope.load);
+
+        $scope.load(); // initial load
+      });
+  </script>
+</body>
+</html>
+
+server.js
+
+const express = require('express');
+const mongoose = require('mongoose');
+const path = require('path');
+const app = express();
+
+app.use(express.json());
+app.use(express.static(__dirname)); 
+
+mongoose.connect('mongodb://127.0.0.1:27017/todo_simple')
+const Todo = mongoose.model('Todo', new mongoose.Schema({
+  title: String,
+  completed: { type: Boolean, default: false }
+}));
+
+app.get('/api/todos', async (req, res) => {
+  res.json(await Todo.find());
+});
+
+app.post('/api/todos', async (req, res) => {
+  const todo = new Todo({ title: req.body.title });
+  await todo.save();
+  res.json(todo);
+});
+
+app.put('/api/todos/:id', async (req, res) => {
+  const todo = await Todo.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  res.json(todo);
+});
+
+app.delete('/api/todos/:id', async (req, res) => {
+  await Todo.findByIdAndDelete(req.params.id);
+  res.json({ message: 'Deleted' });
+});
+
+// start server
+app.listen(3000, () => console.log('Server running at http://localhost:3000'));
+
