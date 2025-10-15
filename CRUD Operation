@@ -1,6 +1,29 @@
 npm init -y
-npm install mysql2
-npm install express body-parser mysql2
+npm install mysql2 express body-parser
+node server.js
+
+Mysql:
+CREATE DATABASE userdb;
+USE userdb;
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100),
+  email VARCHAR(100),
+  address VARCHAR(255),
+  password VARCHAR(100)
+);
+
+  1.INSERT INTO users (name, email, address, password) VALUES ('John Doe', 'john@example.com', '123 Main St', 'mypassword');
+  2.select * from users;
+  3.DELETE FROM users WHERE id = 1;
+
+POST:
+  {
+  "name": "John Doe",
+  "email": "john@example.com",
+  "address": "123 Main St",
+  "password": "mypassword"
+  }
 
 app.js
 
