@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Angular Exercises</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .output {
+            background-color: #e8f5e8;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 0 5px 5px 0;
+        }
+        .test-result {
+            background-color: #f0f8ff;
+            border-left: 4px solid #2196F3;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        .test-result.pass {
+            background-color: #e8f5e8;
+            border-left-color: #4CAF50;
+        }
+        .test-result.fail {
+            background-color: #ffe8e8;
+            border-left-color: #f44336;
+        }
+        .scope-box {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 2px dashed #ccc;
+        }
+        .animated-box {
+            background-color: #e8f5e8;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 0 5px 5px 0;
+            transition: all 0.5s ease;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <h1>Angular Exercises</h1>
+            
+            <!-- 1. DATA BINDING -->
+            <div class="section">
+                <h2>1. Data Binding</h2>
+                
+                <div class="form-group">
+                    <label>Enter your name:</label>
+                    <input type="text" id="userName" placeholder="Your name here...">
+                </div>
+                
+                <div class="form-group">
+                    <label>Enter your message:</label>
+                    <input type="text" id="userMessage" placeholder="Your message...">
+                </div>
+                
+                <div class="output" id="bindingOutput" style="display:none;">
+                    <h3>Data Binding Results:</h3>
+                    <p id="nameOutput"></p>
+                    <p id="messageOutput"></p>
+                    <p id="timeOutput"></p>
+                    <p id="lengthOutput"></p>
+                    
+                    <h3>Event Binding:</h3>
+                    <button onclick="incrementClick()">Click me! (<span id="clickCount">0</span>)</button>
+                    <button onclick="resetClick()">Reset</button>
+                </div>
+            </div>
+            
+            <!-- 2. ANIMATIONS -->
+            <div class="section">
+                <h2>2. Animations</h2>
+                
+                <button onclick="toggleFadeBox()">Toggle Fade Animation</button>
+                <button onclick="addAnimatedItem()">Add Animated Item</button>
+                <button onclick="clearItems()">Clear Items</button>
+                
+                <div id="fadeBox" class="animated-box" style="display:none;">
+                    <h3>Animated Box</h3>
+                    <p>This box appears with animation!</p>
+                </div>
+                
+                <div id="animatedItems"></div>
+            </div>
+            
+            <!-- 3. UNIT TESTING -->
+            <div class="section">
+                <h2>3. Unit Testing</h2>
+                
+                <div class="form-group">
+                    <label>Number 1:</label>
+                    <input type="number" id="num1" placeholder="First number" value="0">
+                </div>
+                
+                <div class="form-group">
+                    <label>Operation:</label>
+                    <select id="operation">
+                        <option value="add">Add (+)</option>
+                        <option value="subtract">Subtract (-)</option>
+                        <option value="multiply">Multiply (×)</option>
+                        <option value="divide">Divide (÷)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Number 2:</label>
+                    <input type="number" id="num2" placeholder="Second number" value="0">
+                </div>
+                
+                <button onclick="calculateResult()">Calculate</button>
+                <button onclick="runAllTests()">Run All Tests</button>
+                
+                <div id="calculatorOutput" class="output" style="display:none;">
+                    <h3>Result: <span id="result"></span></h3>
+                </div>
+                
+                <div id="testResults"></div>
+            </div>
+            
+            <!-- 4. SCOPE SIMULATION -->
+            <div class="section">
+                <h2>4. Scope Demonstration</h2>
+                
+                <div class="form-group">
+                    <label>Parent Scope Message:</label>
+                    <input type="text" id="parentMessage" placeholder="Message from parent...">
+                </div>
+                
+                <div id="parentOutput" class="output" style="display:none;">
+                    <p><strong>Parent says:</strong> <span id="parentText"></span></p>
+                    <p><strong>Parent Scope ID:</strong> parent-001</p>
+                </div>
+                
+                <div class="scope-box">
+                    <h3>Child Scope 1</h3>
+                    <p><strong>Inherited from parent:</strong> <span id="child1Inherited"></span></p>
+                    <div class="form-group">
+                        <label>Child 1 Message:</label>
+                        <input type="text" id="child1Message" placeholder="Child 1 message...">
+                    </div>
+                    <p><strong>Child 1 says:</strong> <span id="child1Text"></span></p>
+                    <p><strong>Child Scope ID:</strong> child-001</p>
+                    <button onclick="updateParentFromChild1()">Update Parent</button>
+                </div>
+                
+                <div class="scope-box">
+                    <h3>Child Scope 2</h3>
+                    <p><strong>Inherited from parent:</strong> <span id="child2Inherited"></span></p>
+                    <div class="form-group">
+                        <label>Child 2 Message:</label>
+                        <input type="text" id="child2Message" placeholder="Child 2 message...">
+                    </div>
+                    <p><strong>Child 2 says:</strong> <span id="child2Text"></span></p>
+                    <p><strong>Child Scope ID:</strong> child-002</p>
+                    <button onclick="updateParentFromChild2()">Update Parent</button>
+                </div>
+                
+                <button onclick="broadcastToChildren()">Broadcast to Children</button>
+                <div id="broadcastOutput" class="output" style="display:none;">
+                    <p><strong>Last broadcast:</strong> <span id="broadcastMessage"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for state management
+        let clickCounter = 0;
+        let animatedItemsCount = 0;
+        
+        // Data Binding Functions
+        function updateBindings() {
+            const userName = document.getElementById('userName').value;
+            const userMessage = document.getElementById('userMessage').value;
+            const output = document.getElementById('bindingOutput');
+            
+            if (userName || userMessage) {
+                output.style.display = 'block';
+                document.getElementById('nameOutput').innerHTML = userName ? `Hello, ${userName}!` : '';
+                document.getElementById('messageOutput').innerHTML = userMessage ? `Your message: ${userMessage}` : '';
+                document.getElementById('timeOutput').innerHTML = `Current time: ${new Date().toLocaleString()}`;
+                document.getElementById('lengthOutput').innerHTML = `Name length: ${userName.length || 0}, Message length: ${userMessage.length || 0}`;
+            } else {
+                output.style.display = 'none';
+            }
+        }
+        
+        function incrementClick() {
+            clickCounter++;
+            document.getElementById('clickCount').textContent = clickCounter;
+        }
+        
+        function resetClick() {
+            clickCounter = 0;
+            document.getElementById('clickCount').textContent = clickCounter;
+        }
+        
+        // Animation Functions
+        function toggleFadeBox() {
+            const box = document.getElementById('fadeBox');
+            if (box.style.display === 'none') {
+                box.style.display = 'block';
+                box.classList.add('fade-in');
+            } else {
+                box.style.display = 'none';
+                box.classList.remove('fade-in');
+            }
+        }
+        
+        function addAnimatedItem() {
+            animatedItemsCount++;
+            const container = document.getElementById('animatedItems');
+            const item = document.createElement('div');
+            item.className = 'animated-box fade-in';
+            item.innerHTML = `
+                <p>Animated Item ${animatedItemsCount} - Created: ${new Date().toLocaleTimeString()}</p>
+                <button onclick="this.parentElement.remove()" style="background-color: #f44336;">Remove</button>
+            `;
+            container.appendChild(item);
+        }
+        
+        function clearItems() {
+            document.getElementById('animatedItems').innerHTML = '';
+            animatedItemsCount = 0;
+        }
+        
+        // Calculator Functions
+        const calculator = {
+            add: (a, b) => a + b,
+            subtract: (a, b) => a - b,
+            multiply: (a, b) => a * b,
+            divide: (a, b) => {
+                if (b === 0) throw new Error('Cannot divide by zero');
+                return a / b;
+            }
+        };
+        
+        function calculateResult() {
+            try {
+                const num1 = parseFloat(document.getElementById('num1').value) || 0;
+                const num2 = parseFloat(document.getElementById('num2').value) || 0;
+                const operation = document.getElementById('operation').value;
+                
+                const result = calculator[operation](num1, num2);
+                document.getElementById('result').textContent = result;
+                document.getElementById('calculatorOutput').style.display = 'block';
+            } catch (error) {
+                document.getElementById('result').textContent = 'Error: ' + error.message;
+                document.getElementById('calculatorOutput').style.display = 'block';
+            }
+        }
+        
+        function runAllTests() {
+            const tests = [
+                { name: 'Add 2 + 3 = 5', operation: 'add', a: 2, b: 3, expected: 5 },
+                { name: 'Subtract 10 - 4 = 6', operation: 'subtract', a: 10, b: 4, expected: 6 },
+                { name: 'Multiply 5 × 6 = 30', operation: 'multiply', a: 5, b: 6, expected: 30 },
+                { name: 'Divide 20 ÷ 4 = 5', operation: 'divide', a: 20, b: 4, expected: 5 }
+            ];
+            
+            let passedTests = 0;
+            let testResultsHTML = '<h3>Test Results:</h3>';
+            
+            tests.forEach(test => {
+                try {
+                    const result = calculator[test.operation](test.a, test.b);
+                    const passed = result === test.expected;
+                    testResultsHTML += `
+                        <div class="test-result ${passed ? 'pass' : 'fail'}">
+                            <strong>${test.name}:</strong> ${passed ? 'PASSED' : 'FAILED'}
+                            ${!passed ? ` - Expected ${test.expected}, got ${result}` : ''}
+                        </div>
+                    `;
+                    if (passed) passedTests++;
+                } catch (error) {
+                    testResultsHTML += `
+                        <div class="test-result fail">
+                            <strong>${test.name}:</strong> FAILED - ${error.message}
+                        </div>
+                    `;
+                }
+            });
+            
+            testResultsHTML += `
+                <div class="output">
+                    <strong>${passedTests}/${tests.length} tests passed</strong>
+                </div>
+            `;
+            
+            document.getElementById('testResults').innerHTML = testResultsHTML;
+        }
+        
+        // Scope Functions
+        function updateScopeBindings() {
+            const parentMessage = document.getElementById('parentMessage').value;
+            const child1Message = document.getElementById('child1Message').value;
+            const child2Message = document.getElementById('child2Message').value;
+            
+            // Update parent output
+            if (parentMessage) {
+                document.getElementById('parentOutput').style.display = 'block';
+                document.getElementById('parentText').textContent = parentMessage;
+            } else {
+                document.getElementById('parentOutput').style.display = 'none';
+            }
+            
+            // Update child inheritances
+            document.getElementById('child1Inherited').textContent = parentMessage || '(no parent message)';
+            document.getElementById('child2Inherited').textContent = parentMessage || '(no parent message)';
+            
+            // Update child outputs
+            document.getElementById('child1Text').textContent = child1Message || '(no message)';
+            document.getElementById('child2Text').textContent = child2Message || '(no message)';
+        }
+        
+        function updateParentFromChild1() {
+            document.getElementById('parentMessage').value = 'Hello from Child 1!';
+            updateScopeBindings();
+        }
+        
+        function updateParentFromChild2() {
+            document.getElementById('parentMessage').value = 'Hello from Child 2!';
+            updateScopeBindings();
+        }
+        
+        function broadcastToChildren() {
+            const message = `Broadcast at ${new Date().toLocaleTimeString()}`;
+            document.getElementById('broadcastMessage').textContent = message;
+            document.getElementById('broadcastOutput').style.display = 'block';
+            console.log('Broadcasting to children:', message);
+        }
+        
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Data binding listeners
+            document.getElementById('userName').addEventListener('input', updateBindings);
+            document.getElementById('userMessage').addEventListener('input', updateBindings);
+            
+            // Scope binding listeners
+            document.getElementById('parentMessage').addEventListener('input', updateScopeBindings);
+            document.getElementById('child1Message').addEventListener('input', updateScopeBindings);
+            document.getElementById('child2Message').addEventListener('input', updateScopeBindings);
+            
+            // Update time every second
+            setInterval(() => {
+                if (document.getElementById('userName').value || document.getElementById('userMessage').value) {
+                    document.getElementById('timeOutput').innerHTML = `Current time: ${new Date().toLocaleString()}`;
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
